@@ -21,7 +21,7 @@ WeaveworldUI **main features**:
 * The source of the presentation is a simple _HTML_, that is interpreted _as a template_.
   * The UI can be _designed standalone_, without any server, by switching off templating or providing a static example data response.
 
-Usage (where VERSION: MAJOR.MINOR.DATE; suggested use: MAJOR.MINOR, e.g., .../`WeaveworldUI@1.0/`...)
+Usage (where VERSION: MAJOR.MINOR.DATE; suggested use: MAJOR.MINOR, e.g., .../`WeaveworldUI@1.3/`...)
 ```html
 <script src="https://cdn.jsdelivr.net/gh/weaveworld/WeaveworldUI@VERSION/w.min.js"></script>
 <link href="https://cdn.jsdelivr.net/gh/weaveworld/WeaveworldUI@VERSION/w.css" rel="stylesheet"/>

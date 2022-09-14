@@ -6,6 +6,7 @@ W$TYPE={ $name:'TodoList',
     this.list.push(op);
   },
 };
+
 W$TYPE={ $name:'Todo',
   name$required: true,
   name$length: 64,
