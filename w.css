@@ -5,12 +5,12 @@
 
 /* wglass and werror */
 .wglass{ opacity:0;  font-weight:bold;
-  position:fixed; width:100%; height:100%; top:0px; left:0px; z-index:2147483647; 
+  position:fixed; width:100%; height:100%; top:0px; left:0px; z-index:2147483647;
 }
 .wglass[disabled]{ opacity:0.2; background-color:#ccc; cursor:wait;
 }
-.werror{ color:white; background-color:red; 
-  position:fixed; width:100%; _height:100%; top:0px; left:0px; z-index:2147483647; 
+.werror{ color:white; background-color:red;
+  position:fixed; width:100%; _height:100%; top:0px; left:0px; z-index:2147483647;
 }
 
 /* wmenu */
@@ -20,23 +20,24 @@
   z-index:10000;
 }
 .wmenuitem .wmenu{ display:none; }
-ul.wmenu{    color:#333; background-color:#f4f4f4; margin:0; padding:2px 0.5ex; }
-ul.wmenu ul{ color:#333; background-color:#f4f4f4; margin:0; padding:2px 0.5ex; }
+ul.wmenu,ul.wmenu ul{ color:#333; background-color:#f4f4f4; margin:0; padding:2px 0.5ex; }
 .wmenu li { position:relative; list-style:none; margin: 0; padding: 5px 3px; border-bottom: 1px solid #ccc;
             cursor:pointer; white-space:nowrap;
 }
-.wmenu li[disabled]{ opacity: .3; }
+.wmenu li[disabled]{ opacity: .3; cursor:default; pointer-events:none; }
 .wmenu li:hover{              color:#F2F2F2; background-color:#003366; }
 .wmenu li.wmenuitem-selected{ color:#F2F2F2; background-color:#003366; }
-.wmenu li.wmenuitem[checked]::after{ content:' ✔' }
+.wmenu li:focus,.wmenu li:focus-visible,.wbutton:not(:disabled):focus,.wbutton:not(:disabled):focus-visible,.wa:not([disabled]):focus,.wa:not([disabled]):focus-visible{ outline:2px solid #6699cc; outline-offset:1px; }
+.wmenu li.wmenuitem[checked]::after{ content:' \2714' }
 .wmenu .icon{ position:absolute; left:0px; top:3px; width:20px; height:20px; }
 
 /* tooltip attribute */
-[tooltip]:before { position:absolute; content:attr(tooltip); opacity:0; padding: 10px; color: #333; 
-    border-radius: 10px; box-shadow: 2px 2px 1px silver; transition: all 0.15s ease;        
+[tooltip]{ position:relative; }
+[tooltip]::before { position:absolute; left:20px; top:10px; z-index:10001; content:attr(tooltip); opacity:0; padding: 10px; color: #333;
+    border-radius: 10px; box-shadow: 2px 2px 1px silver; transition: all 0.15s ease;
 }
-[tooltip]:hover:before { opacity:1; background:yellow; margin-top:10px; margin-left:20px; }
-[tooltip]:not([tooltip-persistent]):before { pointer-events: none; }
+[tooltip]:hover::before,[tooltip]:focus::before,[tooltip]:focus-visible::before { opacity:1; background:yellow; }
+[tooltip]:not([tooltip-persistent])::before { pointer-events: none; }
 
 /* no wrap */
 .wnowr{ white-space:nowrap; }
@@ -54,19 +55,19 @@ ul.wmenu ul{ color:#333; background-color:#f4f4f4; margin:0; padding:2px 0.5ex; 
   opacity:0.7; font-size:115%; font-style: inherit; text-align:center; text-decoration:none; padding: 0 0.7ex;
   border:1px; border-color:#bbb; border-style:solid; border-radius:5px;
 }
-.wbutton:disabled{ color:#888; background-color:#eee; border-color:#eee; cursor:default; } 
+.wbutton:disabled{ color:#888; background-color:#eee; border-color:#eee; cursor:default; }
 .wbutton:not(:disabled):hover{ color:black !important; /* background-color: #000; */ opacity: 1 !important;
   border-color:#aaa;
   cursor:pointer;
-} 
+}
 input.winput::placeholder{ opacity:0.7; font-style: italic; }
 input.winput[readonly],select.winput[readonly]{ opacity:0.5; }
 .winput:invalid{ border: 2px solid #bb0000; }
 .winput:invalid+sup:after{
-  content:'✖'; color:red; font-weight:bold; padding-left: 0.3ex; position: relative; top: -0.5em; 
+  content:'\2716'; color:red; font-weight:bold; padding-left: 0.3ex; position: relative; top: -0.5em;
 }
 .winput:not(:invalid)+sup:after{
-  content:'✓'; color:green; font-weight:bold; padding-left: 0.3ex; position: relative; top: -0.5em;
+  content:'\2713'; color:green; font-weight:bold; padding-left: 0.3ex; position: relative; top: -0.5em;
 }
 
 .wdiv[contentEditable='true']{ background-color:#fff; }
@@ -78,9 +79,7 @@ input.winput[readonly],select.winput[readonly]{ opacity:0.5; }
 .wtext[contentEditable='true']:focus{ border-color:#f0f0ff; border-width:1px; }
 
 
-span.wcheckbox{ white-space:nowrap; }
-
-span.wradio{ white-space:nowrap; }
+span.wcheckbox,span.wradio{ white-space:nowrap; }
 span.wradio>span{ margin-left:1em; }
 
 
@@ -92,7 +91,6 @@ span.wradio>span{ margin-left:1em; }
 
 
 
-span.wradio{ }
 span.wradio>input{ margin-top: 10px; margin-bottom: 15px; }
 
 span.wradio>span{ visibility: visible; color: white; padding: 10px 10px; border-radius: 5px; cursor: pointer;
@@ -104,7 +102,7 @@ div[type=radio]{ visibility: hidden; }
 [type=radio]:checked+span {       color: white; background: #009977; border: 1px solid #dfdfd7;  }
 
 [type="radio"]:checked+span,
-[type="radio"]:not(:checked)+span 
+[type="radio"]:not(:checked)+span
   { position: relative; padding: 10px 10px; cursor: pointer; border-radius: 5px;
     margin: 2px; text-align:center;
 }
@@ -112,3 +110,43 @@ div[type=radio]{ visibility: hidden; }
 [type="radio"]:not(:checked)+span { color:white; background: #009977; border: 1px solid #dfdfd7; }
 [type="radio"]:not(:checked)+span:hover { background: #017158; }
 [type="radio"]:checked+span { background:#017158; color:#fff; border: 1px solid #017158; }
+
+/* wform: merged grid/flex helpers from wf.css */
+
+/* 12-column width helpers for flex rows */
+.wcol-1  { flex: 0 0 8.333333%;   max-width: 8.333333%; }
+.wcol-2  { flex: 0 0 16.666667%;  max-width: 16.666667%;}
+.wcol-3  { flex: 0 0 25%;         max-width: 25%;}
+.wcol-4  { flex: 0 0 33.333333%;  max-width: 33.333333%;}
+.wcol-5  { flex: 0 0 41.666667%;  max-width: 41.666667%;}
+.wcol-6  { flex: 0 0 50%;         max-width: 50%; }
+.wcol-7  { flex: 0 0 58.333333%;  max-width: 58.333333%; }
+.wcol-8  { flex: 0 0 66.666667%;  max-width: 66.666667%; }
+.wcol-9  { flex: 0 0 75%;         max-width: 75%; }
+.wcol-10 { flex: 0 0 83.333333%;  max-width: 83.333333%; }
+.wcol-11 { flex: 0 0 91.666667%;  max-width: 91.666667%; }
+.wcol-12 { flex: 0 0 100%;        max-width: 100%; }
+
+/* Left margin offsets matched to the same 12-column scale */
+.woffset-1  {margin-left: 8.333333%;}
+.woffset-2  { margin-left: 16.666667%;}
+.woffset-3  { margin-left: 25%;}
+.woffset-4  { margin-left: 33.333333%;}
+.woffset-5  { margin-left: 41.666667%;}
+.woffset-6  { margin-left: 50%; }
+.woffset-7  { margin-left: 58.333333%;}
+.woffset-8  { margin-left: 66.666667%; }
+.woffset-9  { margin-left: 75%; }
+.woffset-10 { margin-left: 83.333333%; }
+.woffset-11 { margin-left: 91.666667%; }
+.woffset-12 { margin-left: 100%; }
+
+/* Basic flex layout helpers used by WFORM renderers and examples */
+.wcol {      display:flex; flex-flow: column nowrap; }
+.wrow {      display:flex; flex-flow: row nowrap; }
+.wrow > * {  min-width:0; }
+.wrow-wrap { display:flex; flex-flow: row wrap; }
+.wfix { flex: 0 0 auto; }
+.wflex0 { flex: 0 0 auto; }
+.wflex1 { flex: 1 0 auto; }
+.wbreak{ flex: 1 1 100%; min-width:100%; width:100%; max-width: 100%; }

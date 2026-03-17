@@ -13,6 +13,14 @@ See: [LICENSE](LICENSE).
 WeaveworldUI uses real HTML as the presentation source and interprets it as a template against current data (`W$DATA`).
 Behavior is defined with `w:` attributes and JavaScript type-handlers (`W$TYPE`), then applied through a reactive data-binding runtime.
 
+In practice, the framework can be used at multiple levels:
+
+- **High-level form/page authoring** with `w:name` / `w:named` and metadata on `W$TYPE`
+- **Direct declarative binding** with `w:` attributes such as `w:text`, `w:if`, `w:each`, `w:on:*`
+- **Low-level runtime control** with helpers like `w$apply`, `w$weave`, `w$refresh`, `w$action`, and `W$CALL`
+
+Most business-form code can stay on the higher levels, while the lower levels remain available for customization and special cases.
+
 - Works with **plain HTML/CSS/JS**, with **no mandatory build tooling**.
 - You can start from a **static HTML page** with **example data**.
 - Logic can live directly in the **same page/file** (including mixed **HTML/CSS/JS**).
@@ -37,6 +45,7 @@ Behavior is defined with `w:` attributes and JavaScript type-handlers (`W$TYPE`)
 * **Connect to your backend in your preferred style.** You can integrate server calls with operation-style or REST-style APIs.
 * **Show validation feedback where users need it.** Validation and messages are built in so form errors can appear consistently at field level.
 * **Reduce repeated form setup.** Field templates can apply common rules automatically (required, length, pattern, placeholders, etc.).
+* **Work at a higher level when desired.** `w:name` and `w:named` can generate much of the routine form wiring from metadata.
 * **Control visibility and editability from business rules.** Access-related rules can hide or disable actions based on user level.
 * **Support multilingual applications.** Localization helpers make it easier to translate UI text through a dictionary.
 * **Adapt the framework to project needs.** Core behavior is customizable, so teams can tune conventions without rewriting everything.
@@ -75,8 +84,9 @@ Recommended CDN reference: `MAJOR.MINOR` (for example `.../WeaveworldUI@1.3/...`
 1. Create HTML with example values.
 2. Provide initial data (`W$DATA`) or load it (`W$START` + `W$CALL`).
 3. Add `w:` template attributes.
-4. Bind types via `class` and/or `w:type`.
-5. Define `W$TYPE` rules for events, conversions, metadata, and validation.
+4. For forms, prefer `w:name` / `w:named` where metadata-driven wiring is enough.
+5. Bind types via `class` and/or `w:type`.
+6. Define `W$TYPE` rules for events, conversions, metadata, and validation.
 
 Tutorial: [simple To-Do](demo/simple-todo/README.md).
 
@@ -130,6 +140,7 @@ Tutorial: [simple To-Do](demo/simple-todo/README.md).
 * [Field templates](doc/doc-6-field-templates.md) - auto-apply form defaults from metadata.
   * [Metadata conventions](doc/doc-6-field-templates.md#metadata-conventions)
   * [What gets auto-generated](doc/doc-6-field-templates.md#what-gets-auto-generated)
+  * [Notes](doc/doc-6-field-templates.md#notes)
   * Cheat-sheet: `w:name`, `w:named`, `field$type`, `field$required`, `field$length`, `field$pattern`
 
 * [Access control](doc/doc-7-access-control.md) - declare view/edit permissions in templates.

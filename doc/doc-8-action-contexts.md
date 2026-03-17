@@ -25,6 +25,11 @@ Example:
 3. Calls data methods whose names end with `$action`.
 4. If an action rule returns an object, it is merged back into data.
 
+Notes:
+
+* A type-level `$action` that returns `true` stops the rest of the action chain.
+* Field-oriented hooks such as `opened$action` are simply methods on the current bound data object.
+
 This enables central reactive logic for many event sources.
 
 ## Example ##

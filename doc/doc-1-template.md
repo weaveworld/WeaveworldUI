@@ -8,13 +8,16 @@ During initialization, Weaveworld transforms the DOM into a lightweight represen
 
 The template engine is controlled by element attributes whose names start with `w:`.
 
-Most template attributes are macro-enabled:
+Template attribute values are interpreted in two closely related ways:
 
 * If the value does not contain `{{...}}`, the whole value is evaluated as one expression.
   * Example: `<sup w:text="code">1234</sup>` reads the `code` field.
 * If the value contains one or more `{{...}}` fragments, each fragment is evaluated and replaced.
   * Example: `<sup w:text="[{{parent}}-{{code}}]">[x12-1234]</sup>` evaluates both fragments.
 * Therefore, `...="X"` and `...="{{X}}"` are equivalent.
+
+This interpolation style is mainly useful on text-producing/template-producing attributes such as `w:text`, `w:html`, `w:attr:*`, and `w:data:*`.
+Condition-like attributes such as `w:if`, `w:show`, `w:enable`, `w:class:*`, and `w:style:*` are usually written as a single expression.
 
 ## Template expressions ##
 
@@ -195,7 +198,7 @@ Basic form:
 ```html
 <ul w:each=list>
   <li class=Todo w:item>
-    <button w:on:onclick=todoDelete>-</button>
+    <button w:on:click=todoDelete>-</button>
     <span  w:text=name>Todo 1</span>
   </li>
   <li w:item>
@@ -258,6 +261,10 @@ Optional filter with `w:when`:
 * **w:value**: compares by name and updates checked/selected state.
 * **w:weave**: evaluates one or more comma-separated expressions for side effects.
 * **w:tagname**: evaluates and uses a dynamic tag name during rendering.
-* **w:use** and **w:define**: reusable template definitions.
+  * Example: `<div w:tagname="isLink?'a':'span'"...`
+* **w:define**: registers a named template fragment for later reuse.
+  * Example: `<li w:define="TodoRow"...`
+* **w:use**: reuses a named `w:define` template in the current place.
+  * Example: `<div w:use="TodoRow"...`
 * **w:children**: forces regeneration of children from current template children when true.
-
+  * Example: `<section w:children="reloadChildren"...`

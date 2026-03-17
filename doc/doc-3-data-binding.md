@@ -10,6 +10,7 @@ You can trigger refresh manually:
 * `w$refresh(el)` schedules refresh shortly after (animation-frame based).
 
 `w$refresh` can refresh whole elements or specific attributes, and can also merge quick field updates into bound data.
+In proxy-driven flows, it is also the internal mechanism used to coalesce multiple refresh requests into one short frame-delayed pass.
 
 ## Weaving (`w$weave`) ##
 
@@ -57,6 +58,7 @@ Notes:
 
 * Warnings are managed through `w$warning` (including `_w*` / `_m*` style fields).
 * For merge mode (`''`), only object-like payloads are merged.
+* `w$weave` is also used internally for batched/sync-style updates where commands arrive as tuple arrays.
 
 ## Server call (`W$CALL`) ##
 
@@ -68,6 +70,7 @@ By default:
 * Default method is `POST.json`.
 * Default URL is the current page directory.
 * If a weave element is provided, warnings are cleared first (unless weave mode starts with `~`).
+* Successful object/array responses are woven back automatically when a target element is provided.
 
 Common forms:
 
@@ -179,6 +182,9 @@ On `DOMContentLoaded`, Weaveworld:
    * applies template (`w$apply`)
    * runs `W$ONLOAD[]`
    * calls `W$SYNC()` if defined
+
+If the library is loaded after `DOMContentLoaded`, the same startup sequence runs immediately.
+If `W$DATA` is assigned after the initial weave, the body is re-applied automatically.
 
 Example:
 ```js

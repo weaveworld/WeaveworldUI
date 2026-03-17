@@ -73,8 +73,8 @@ Weaveworld exposes many utility functions used internally and available for app 
 
 ## Networking and sync ##
 
-* `w$ajax(conf)` - low-level transport helper (`GET`, `POST`, JSON, callbacks, async/sync).
-  * e.g., `w$ajax({ method:'GET', url:'task.json', success:console.log });`
+* `w$ajax(conf)` - low-level transport helper (`GET`, `POST`, JSON, `fetch`/XHR, callbacks, async/sync, abort).
+  * e.g., `const req=w$ajax({ method:'FETCH', fetchMethod:'GET', url:'task.json', success:console.log });`
 * `W$CALL(cmd [,arg] [,element [,weaveMode [,weaveData]]])` - high-level call helper with default transport + weave integration.
   * e.g., `W$CALL('setTask',{ id:this.id, name:this.name },el);`
 * `w$sync()` - starts sync polling loop against `location.pathname+'.json'`.
@@ -123,6 +123,7 @@ Weaveworld exposes many utility functions used internally and available for app 
   * e.g., `w$use('TaskRow',task,listEl,null);`
 * `w$include(url [,replace [,fn]])` - loads HTML fragment, imports definitions/resources, and appends/replaces body content.
   * e.g., `w$include('part/todo.html',false,()=>console.log('included'));`
+  * returns a Promise when called without a callback in modern environments
+  * e.g., `w$include('part/todo.html',true).then(console.log);`
 
 For practical use patterns, see docs 1-9 and the demo pages in `_ui/demo`.
-

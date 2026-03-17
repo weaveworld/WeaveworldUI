@@ -60,8 +60,8 @@ W$DATA={
 <div class="Amount" w:item=product>
   <span w:text=name>Product name</span>
   <input type="number" name="amount" w:set:value="amount">
-  <input type="button" class=wbutton value="+" w:on:click=increaseAmount>
-  <input type="button" class=wbutton value="-" w:on:click=decreaseAmount>
+  <input type="button" class=wbutton value="+" w:on:click="changeAmount(n:1)">
+  <input type="button" class=wbutton value="-" w:on:click="changeAmount(n:-1)">
 </div>
 ```
 
@@ -123,7 +123,7 @@ Return values:
 
 Declarations are processed in this order:
 
-* `w:on:X:menu="<name>[(arg_spec)]"`: opens menu by definition name, then stops further processing
+* `w:on:X:menu="<name>[(arg_spec)]"`: opens menu by definition name or DOM id (`#menuId`), then stops further processing
 * `w:on:X:data="[target][(arg_spec)]"`: sets/removes `data-*` attributes on target element
 * `w:on:X:set="[target][(arg_spec)]"`: sets properties of bound data
 * `w:on:X:action="[target][(arg_spec)]"`: triggers `(re)action` update context
@@ -135,6 +135,7 @@ Declarations are processed in this order:
 Notes:
 * Optional `target` uses parent-selector rules.
 * If target is omitted, the first bound element is used.
+* If the control has a `w:name` / `w:named` / `name` and a current value, that value is also merged into the final arg object.
 
 Examples:
 ```html

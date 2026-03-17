@@ -39,6 +39,7 @@ Weaveworld is intentionally customizable. Most behavior can be redefined by repl
 * `w$call` / `w$ajax` - replace or wrap low-level transport implementation.
   * e.g., `w$call=function(conf){ conf.pragma='W$CALL'; return w$ajax(conf); };`
   * e.g., `w$ajax({ method:'GET', url:'task.json', success:console.log });`
+  * current runtime also supports `fetch`-style requests, raw bodies/FormData, and abort via signal/handle
 
 ### Lifecycle/startup
 
@@ -50,6 +51,7 @@ Weaveworld is intentionally customizable. Most behavior can be redefined by repl
   * e.g., `W$START=function(params){ return { filter:params.filter||'all', list:[] }; };`
 * `W$SYNC` - plug background synchronization after initial load.
   * e.g., `W$SYNC=w$sync;`
+* `W$DATA` - can be reassigned after startup; the body will be re-applied immediately once the root weave exists.
 
 ### Localization
 

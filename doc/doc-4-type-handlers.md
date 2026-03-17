@@ -12,6 +12,7 @@ Context binding is based on CSS classes on DOM elements.
 It is used for:
 * [event handling](doc-2-event.md)
 * [conversions/transformations](doc-1-template.md#conversions)
+* type-level action/context hooks tied to element classes
 
 Example:
 ```js
@@ -30,6 +31,7 @@ W$TYPE={ $name:'Product',
 ## Prototype binding (`w:type`) ##
 
 `w:type` sets the prototype of the current bound data object/list to the declared type-handler.
+In practice, `class` and `w:type` are often used together: `class` drives DOM-side lookup, while `w:type` enriches the data object with metadata, getters, and helper methods.
 
 Typical usage:
 ```html
@@ -138,3 +140,4 @@ Type-handlers are plain JavaScript objects. Common rule kinds:
 By convention:
 * enablement declarations can use `fn$apt`
 * permission/access declarations are often represented by `$for`-style rules in app conventions
+* field metadata is especially useful together with `w:name` / `w:named`, which is the higher-level authoring style for many business forms
