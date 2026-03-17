@@ -5,7 +5,7 @@ It uses standard HTML/CSS/JavaScript plus `w:` attributes, and does not require 
 
 ## License
 
-It is free to use for any purpose, but during its experimental phase it is not open-source in the usual sense: only unmodified original files may be redistributed/used.
+This project is open source under the Apache License 2.0.
 See: [LICENSE](LICENSE).
 
 ## Technical overview
