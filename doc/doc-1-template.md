@@ -1,255 +1,263 @@
 # WeaveworldUI - Templates #
 
-Using WeaveworldUI, HTML pages with example data are interpreted as templates. The HTML will be actualized based on the current data.
-Initially, the value of W$DATA is used.
+In WeaveworldUI, HTML pages with example data are interpreted as templates. The HTML is actualized from the current data value (initially `W$DATA`).
 
-(During initialization, Weaveworld transforms DOM into a lightweight representation. For production use, a filter program can create more compact pages without the examples.)
+During initialization, Weaveworld transforms the DOM into a lightweight representation. For production use, a filter can generate more compact output without example values.
 
 ## Template attributes ##
 
-The template engine is controlled by element attributes, that have `w:` prefixed names.
+The template engine is controlled by element attributes whose names start with `w:`.
 
-Most attributes are handled as _macros_, which can contain expressions:     
+Most template attributes are macro-enabled:
 
-* If there's no `{{` in the attribute value at all, then the whole value is evaluated as an expression.
-  * e.g., `<sup w:text="code">1234</sup>` - accessing the `code` field.
-* If there are one or more parts between the `{{` and `}}` symbols in the attribute value, then they are evaluated and replaced by their results.
-  * e.g., `<sup w:text="[{{parent}}-{{code}}]">[x12-1234]</sup>` - parts will be replaced with the values of the `parent` and `code` fields.
-* That means, that `...="X"` and `...="{{X}}"` attribute values are handled in the same way.
+* If the value does not contain `{{...}}`, the whole value is evaluated as one expression.
+  * Example: `<sup w:text="code">1234</sup>` reads the `code` field.
+* If the value contains one or more `{{...}}` fragments, each fragment is evaluated and replaced.
+  * Example: `<sup w:text="[{{parent}}-{{code}}]">[x12-1234]</sup>` evaluates both fragments.
+* Therefore, `...="X"` and `...="{{X}}"` are equivalent.
 
 ## Template expressions ##
 
-In (the `w:` prefixed) template attributes simple expressions can be given. 
+In `w:` template attributes, you can use a small (fast) expression language. Its main goal is to access, transform, and check data values.
 
-WeaveworldUI has a very limited (but fast) expression language, which main goal is to access, transform and check parts of data. 
-Note that, using "`[]` prefix or postfix conversions", _full control_ (!) can be gained.   
+During template evaluation, the framework keeps a "current value"; initially this is `W$DATA`.
 
-During template actualization, there is a concept of "current value", that is initialy the value of W$DATA.
+In conditions, values are falsey if they are `undefined`, `null`, `false`, `0`, `""`, or an empty array. Otherwise they are truthy.
 
-In case of conditionals, values are considered false, if they're `undefined`, `null`, `false`, `0`, `""` or an empty array (!); otherwise they're considered as true.
-
-Building blocks of expressions (from higher to lower precedence):
+Expression building blocks (from higher to lower precedence):
 
 * **Field, value, expression**
-  * **empty** expression means **current data**, so empty `w:item` means "current data"   
-    e.g., `<div w:item="">...` or `<div w:item>...`
-  * **`.`** ("dot") also refers to the **current data**, that can be used with postfix conversions.
-    * e.g., `<div w:text=".[toSummary]">...` - the `toSummary` conversion of the current data
-  * **field** (that may contain letters, `$`, `@`, `_` and digits, and not started with digit)   
-    e.g., `<input w:attr:maxlength="name$length"...`
-  * **subfield**: A`.`B means subfield B of field A,   
-    e.g., `list.length`
-  * **identified element**: a`#`b means that element, where the `a` (default is id) field's value is `b`.  
-    e.g. `<div w:item="list.name#start" ...` - in the list field of the current value that element, which `name` field has the `'start'` value.   
-    e.g. `<div w:item="queue.#0" ...` - in the queue field of the current value that element, which `id` field has the `'start'` value.   
-  * **field of a context**: A`\`B means field B in context A, where empty context is the root (i.e., W$DATA)     
-    e.g., `Group\name` looks upward for a Group and gets its name  
-    e.g., `\user.name` looks for the root data (W$DATA) and gets the user's name
-  * literal **value**: `true`, `false`, `null`, `undefined`, `0`, `1`, `""`, `''`, Number, String between `"` or `'`.
-  * simple **expression** (limited). (Only the simplest expressions are allowed; for more complex rules use conversions.)
-    *  e.g., `<span w:text="(fn(1)+1)">`...      
+  * An **empty** expression means the current value.
+    * Example: `<div w:item="">...` or `<div w:item>...`
+  * **`.`** also means the current value (useful before postfix conversions).
+    * Example: `<div w:text=".[toSummary]">...`
+  * **field**: starts with a letter, `_`, or `$`, and can continue with letters, digits, `_`, or `$`.
+    * Example: `<input w:attr:maxlength="name$length"...`
+  * **subfield**: `A.B` means subfield `B` of `A`.
+    * Example: `list.length`
+  * **identified element**: `a#b` means the element whose field `a` equals `b`.
+    * Example: `<div w:item="list.name#start"...` selects the list item where `name` is `'start'`.
+    * Example: `<div w:item="queue.id#0"...` selects the queue item where `id` is `'0'`.
+  * **field in a context**: `A\B` means field `B` in context `A`; empty context means root (`W$DATA`).
+    * Example: `Group\name` searches upward for a `Group` context and returns `name`.
+    * Example: `\user.name` reads `user.name` from the root data.
+  * **literal values**: `true`, `false`, `null`, `undefined`, `0`, `1`, `""`, `''`, number literals, and quoted strings.
+  * **simple JavaScript expression** (limited use is recommended).
+    * Example: `<span w:text="(fn(1)+1)">...`
 
-* **Postfix conversion (postfix `[` and `]`)**: V`[`C <sub>[</sub>ARG<sub>]</sub>`]`   
-  * Uses C conversion on the V value. Postfix conversions are performed left to right.  
-   e.g., `... w:text="count[toCountText][toUppercase]"`
- 
+* **Postfix conversion** (`[` and `]` after a value): `V[C [ARG]]`
+  * Applies conversion `C` to value `V`.
+  * Postfix conversions are evaluated left to right.
+  * Example: `w:text="count[toCountText][toUppercase]"`
 
-* **Negation (prefix `!`)** and **Comparison (infix `=`, `!`)**: `!`A and A<sub>{</sub><sub>(</sub>`=`<sub>|</sub>`!`<sub>)</sub>B<sub>}</sub>
-  * Prefix `!` check is for negation.  
-    e.g., `<div w:show="!list"`... - show only if the list is empty
-  * Infix `=` and `!` is for equality and non-equality checks.  
-    It checks if the left value equals one of the '=' values, but not equals none of the '!' values.  
-    e.g., `<div w:show="code='x'"` ... - the code is 'x'  
-    e.g., `<div w:show="code='x'='y'"` ... - the code is 'x' or 'y', i.e., code is in ('x','y')  
-    e.g., `<div w:show="code!'a'"` ... - the code is not 'a'  
-    e.g., `<div w:show="code!'a'!'b'"` ... - the code is neither 'a' nor 'b', i.e., code is not in ('a','b')  
+* **Negation** (prefix `!`) and **comparison** (infix `=` and `!`): `!A` and `A(=|!)B...`
+  * Prefix `!` negates the condition.
+    * Example: `<div w:show="!list"...` shows only when `list` is empty.
+  * Infix `=` and `!` implement equality and inequality checks.
+    * Example: `<div w:show="code='x'"...` means `code` is `'x'`.
+    * Example: `<div w:show="code='x'='y'"...` means `code` is `'x'` or `'y'`.
+    * Example: `<div w:show="code!'a'"...` means `code` is not `'a'`.
+    * Example: `<div w:show="code!'a'!'b'"...` means `code` is neither `'a'` nor `'b'`.
 
-* **Logical operators (`?`, `|`, `:`)**: A<sub>{</sub><sub>(</sub>`?`<sub>|</sub>`|`<sub>|</sub>`:`<sub>)</sub>B<sub>}</sub>    
-  Logical operators have the same priority and are evaluated left to right. (The notation is a generalization of the "? :" ternary-operator, because `&` can not be directly written in an HTML attribute.)
-  * `|` means "or"
-    * e.g., `<div w:show="code='x'|state!1"` ... - show only if the code is 'x' or the state is not 1
-    * e.g., `... w:show="code='x'='y'|isAdmin|pass"` ...: if the code is 'x' or 'y', or isAdmin or pass is considered as true
-    * e.g., `... w:text="list.length|'(none)'"...`: default for the value
-  * between `?` and `:` that is the return value if the previous expression is true, otherwise the evaluation continues after the `:` symbol.  
-    * e.g., `...="x?'a':'b'"` ... - if x is true-ish then 'a' else 'b'
-    * e.g., `...="x?'a':code=1?'b':'c'"` ... - if x is true-ish then 'a' else if code is 1 then 'b' else 'c'.
-    * e.g., `... w:style:font-weight="list?'bold':'none'"...`
-  * `?` also means "and"
-    * e.g., `<div w:show="code='x'?state!1"` ... - show only if the code is 'x' and state is not 1
-    * e.g., `...="code='x'?state!1?'a':null"` ... - if code='x' and state is not 1 then 'a' else null
-   
-* **Prefix conversion (prefix `[` and `]`)**: `[`C <sub>[</sub>ARG<sub>]</sub>`]`V    
-  Uses C conversion on the V value with an optional arguments. 
-  Prefix conversions are performed right to left.  
-  e.g., `... w:text="[toUppercase][toCountText]count"`
-  
+* **Logical operators** (`?`, `|`, `:`): `A(?| |:)B...`
+  * These operators have the same precedence and are evaluated left to right.
+  * `|` means logical "or".
+    * Example: `<div w:show="code='x'|state!1"...`
+    * Example: `w:show="code='x'='y'|isAdmin|pass"`
+    * Example: `w:text="list.length|'(none)'"` (fallback value)
+  * `? ... : ...` works like a ternary branch.
+    * Example: `x?'a':'b'`
+    * Example: `x?'a':code=1?'b':'c'`
+    * Example: `w:style:font-weight="list?'bold':'normal'"`
+  * `?` also works as logical "and".
+    * Example: `<div w:show="code='x'?state!1"...`
+    * Example: `code='x'?state!1?'a':null`
+
+* **Prefix conversion** (`[` and `]` before a value): `[C [ARG]]V`
+  * Applies conversion `C` to `V` with an optional argument.
+  * Prefix conversions are evaluated right to left.
+  * Example: `w:text="[toUppercase][toCountText]count"`
 
 ## Conversions ##
 
-Conversions can be invoked as a (low priority) prefix or (high priority) postfix operator.
-Conversion can have an optional argument after a space.  
-if the argument is between parenthesis, then it is evaluated. Otherwise the argumentum is considered as a literal (e.g., a pattern for the conversion). 
+Conversions can be called as:
 
-Conversions' *search order*:
+* prefix operators (lower priority): `[conv]value`
+* postfix operators (higher priority): `value[conv]`
 
-**1.** Type-handlers of the element and its parents.
+A conversion can have an optional argument after a space.
 
-A conversion can be defined as a function "rule" in the type-handler. Parameters are:
-* _el_: the processed element. (Thus the element attributes or the content can be changed!)
-* _v_: the value to be changed.
-* _arg_: the (optional) argument, that can be literal.
+* If the argument is wrapped in parentheses, it is evaluated as expression(s).
+* Otherwise, the argument is treated as a literal string.
 
-The following example defines a `toFixed` conversion for the `Order` type-handler:
+Conversion search order:
+
+1. Type-handlers on the element, then its parents.
+2. Built-in conversions (`W$CONVERSIONS`).
+3. Global object functions (for example `encodeURIComponent`).
+
+A conversion in a type-handler is a function with parameters:
+
+* `el`: current element
+* `v`: input value
+* `arg`: optional conversion argument
+
+Example:
+
 ```js
-W$TYPE={ $name:'Order',
-    toFixed: function(el,v,arg){
-      return String(v.toFixed(p?Number(p):0));  
-    },
-}
+W$TYPE = { $name: "Order",
+  toFixed: function(el, v, arg) {
+    return String(v.toFixed(arg ? Number(arg) : 0));
+  },
+};
 ```
+
 ```html
 <div class=Order>
   ... <span w:text="${{[toFixed 2]price}}">199.99</span> ...
 ```
 
-**2.** Basic conversions. (See below.)
-
-
-**3.** Global object's functions. Parameters: _value_ and optional argument.
+Global converter example:
 
 ```js
-function toIndentation(v,arg){ 
-  return ((v-1)*10)+"px";
-} 
+function toIndentation(v, arg){
+  return ((v - 1) * 10) + "px";
+}
 ```
+
 ```html
-<a w:style:margin-left="[toIndentation]level" 
-  w:attr:href="[encodeURIComponent]uri">...
+<a w:style:margin-left="[toIndentation]level"
+   w:attr:href="[encodeURIComponent]uri">...
 ```
 
-### Basic conversions ###
+### Built-in conversions ###
 
-Initially WeaveworldUI has the following built-in conversions:
+This version provides these built-ins:
 
-* condition-conversion
-  * `[?]`: condition conversion to `true` or `false`    
-    * e.g., `<div w:attr:contenteditable="[?]code$isEditable"` ...
-    * e.g., `<div w:show="[?]details"` ...   
-    * (The `[?]` conversion is performed via `w$is` redefinable utility function.)
-  * `[?? `<sub>[</sub>`'`_string_`'`<sub>]</sub>`]`: conversion to "HTML conditional", that is the _string_ (default is empty string) or `null`.
-     * e.g., `<input type=radio w:attr:checked="[??]code='1'" value="1"` ...
-     * e.g., `<input type=radio w:attr:checked="[?? 'checked']code='1'" value="1"` ...  
-  * `[?1]`: conversion to `1` or `0`
-    * e.g., `<div w:data:open="[?1]opened"` ...    
-* complementer condition-conversion
-  * `[!]`: complementer condition to `false` or `true`.
-    * e.g., `<div w:attr:contenteditable="[!]comment$isLocked"` ...
-    * (The `[!]` conversion is performed via `w$toggle` redefinable utility function.)
-  * `[!! `<sub>[</sub>`'`_string_`'`<sub>]</sub>`]`: conversion to "HTML conditional", that is `null` or the _string_ (default is empty string).
-  * `[!1]`: conversion to `0` or `1`.
-* `[{} `<sub>[</sub>FIELD_ASSIGNS<sub>]</sub>`]`: extracts values into an object. 
-    * e.g., `<div w:item="[{}]"` ... - uses a new empty object.
+* Condition helpers
+  * `[?]` -> `true` or `false`
+  * `[??]` or `[?? 'text']` -> `'text'` (or empty string) or `null`
+  * `[?1]` -> `1` or `0`
+  * `[!]` -> inverse condition (`w$toggle`)
+  * `[!!]` or `[!! 'text']` -> `null` or `'text'`
+  * `[!1]` -> `0` or `1`
+* Argument/object helpers
+  * `[()]` -> argument object from arg-spec string
+  * `[?()]` -> query string from arg-spec
+  * `[??()]` -> current URL query updated with arg-spec
+* Encoding and formatting
+  * `[?=]` -> `encodeURIComponent(value)`
+  * `[~JSON]` -> JSON text
+* Math/string ops
+  * `[~]` string concat
+  * `[+]`, `[-]`, `[*]`, `[/]` numeric operations
+* Lookup/debug
+  * `[# selector]` deep search helper
+  * `[LOG]` console logging passthrough
 
 ## Type-binding (class, w:type) ##
 
-Basic data-binding is performed by default.  
-For more advanced use, [type-binding](doc-4-type-handlers) is needed.
-  
-## Navigation, condition, iteration ##  
-  
-* **w:item** - navigates to the data, and that will be the current data.  
-Empty `w:item` means "current data".
-  * e.g., `<div w:item="group"` ... - uses the `group` field of the current data.
-  * e.g., `<div w:item` ... - uses the current data.
-  * e.g., `<body w:item=""` ... - starts to use (the initial) W$DATA at the body element.
+Basic data-binding works by default.
+For advanced use, see [type-binding](doc-4-type-handlers.md).
 
-The following example navigates to the `user` and uses its `email` value.
+## Navigation, condition, iteration ##
+
+* **w:item**: navigates to data and sets the current value.
+  * Empty `w:item` means current value.
+  * Example: `<div w:item="group"...` uses `group` from current data.
+  * Example: `<div w:item...` uses current data.
+  * Example: `<body w:item=""...` starts from root `W$DATA`.
+
+Example:
+
 ```html
 <div w:item="user">
   <div w:text="email"></div>
 </div>
 ```
 
-* **w:if** - child elements of the content are used only if the value is true-ish.
-
-  * An optional `w:else` can be given for an alternate content.
+* **w:if**: child content is used only when the expression is truthy.
+  * Optional `<w:else>` provides fallback content.
 
 ```html
 <div w:if="user">
   <div w:text="user.email"></div>
   <w:else>
-    <button w:on:onclick=login>Please, login!</button>
+    <button w:on:click="login">Please log in.</button>
   </w:else>
 </div>
 ```
 
-* **w:each** - navigates to the value, and iterates on it.
+* **w:each**: navigates to a value and iterates over it.
 
-The basic form is the following: the outer element is marked by a `w:each`, and one or more inner elements are marked by an empty `w:item`, as "the current data". During iteration only the first marked element will be used as template.
+Basic form:
 
 ```html
 <ul w:each=list>
   <li class=Todo w:item>
-    <button w:on:onclick=todoDelete>-</button> 
+    <button w:on:onclick=todoDelete>-</button>
     <span  w:text=name>Todo 1</span>
   </li>
   <li w:item>
-    <button>-</button> 
+    <button>-</button>
     <span>Todo 2</span>
   </li>
 </ul>
 ```
 
-The general form of `w:each` is the next:
-* The elements before the first item are the _headers_.
-* First item is used as the _iterated pattern_.
-* Elements between the first and second items are used as _separators_.
-* Elements after the last elements are used as _footers_.
-* An optional `w:else` can be used as replacement, if there's no iterable item at all.
+General form:
 
-There's a shorthand version, where the w:each and the empty w:item is given by the same element, so that will be repeated.
+* Elements before the first `w:item` are headers.
+* The first `w:item` is the repeated item template.
+* Elements between the first and second `w:item` are separators.
+* Elements after the last `w:item` are footers.
+* Optional `<w:else>` is used when no iterable item exists.
+
+Shorthand form:
 
 ```html
-<div w:each=list w:item>
-  <button>-</button><span w:text=name>item</span>
+<div w:each="list" w:item>
+  <button>-</button><span w:text="name">item</span>
 </div>
 ```
 
-Using w:each there's an optional **w:when** attribute, what can filter the results.
+Optional filter with `w:when`:
 
 ```html
-<div w:each=list w:when="!deleted" w:item>
-  <button>-</button><span w:text=name>item</span>
+<div w:each="list" w:when="!deleted" w:item>
+  <button>-</button><span w:text="name">item</span>
 </div>
 ```
 
-## Property-like controls ##  
+## Property-like controls ##
 
-* **w:text** - sets the element text (i.e., the `textContent`).
-  * e.g., `<span w:text=code` ...
-
-* **w:html** - sets the element's HTML content (i.e., the `innerHTML`).
-  * e.g., `<div w:html=descr` ...
-
-* **w:attr:X** - sets or removes the given attribute.
-  * e.g., `<div w:attr:title="descr$title"` ...
-
-* **w:data:X** - sets or removes the given 'data-' prefixed attribute.
-  * e.g., `<div w:data:open="hasItems?1:0"` ...
-
-* **w:style:X** - sets or removes the given style attribute.
-  * e.g., `<span w:style:fontWeight="loggedin?'bold':null"` ...
-  * e.g., `<span w:style:width="{{o_r|17.7}}%"` ...
-
-* **w:set:X** - sets or removes the given property of the element.
-  * e.g., `<select w:set:value=areacode` ...
-
-* **w:show** - Element is shown only if the expression value is considered as true.
-  * e.g., `<select w:show="code=1=2"` ...
-
-* **w:warning** - sets the element's custom validity property.
-  * e.g., `<input type=text name=email w:warning=email$warning` ...
-
-
-
+* **w:text**: sets text (`textContent`).
+  * Example: `<span w:text="code"...`
+* **w:html**: sets HTML (`innerHTML`).
+  * Example: `<div w:html="descr"...`
+* **w:attr:X**: sets or removes attribute `X`.
+  * Example: `<div w:attr:title="descr$title"...`
+* **w:data:X**: sets or removes `data-X`.
+  * Example: `<div w:data:open="hasItems?1:0"...`
+* **w:style:X**: sets or clears style property `X`.
+  * Example: `<span w:style:fontWeight="loggedin?'bold':null"...`
+* **w:class:X**: adds or removes CSS class `X` by condition.
+  * Example: `<div w:class:highlight="isActive"...`
+* **w:set:X**: sets property `X` on the element.
+  * Example: `<select w:set:value="areacode"...`
+* **w:set**: sets the element's primary value (`value`, `selected`, or text, depending on element type) and runs validation checks.
+  * Example: `<input w:set="email"...`
+* **w:show**: shows/hides the element by condition.
+  * Example: `<select w:show="code=1=2"...`
+* **w:enable**: toggles `disabled` state by condition.
+  * Example: `<input w:enable="isLocked"...`
+* **w:allowed**, **w:show:allowed**, **w:enable:allowed**:
+  allow-level helpers for visibility and enablement checks.
+* **w:warning**: sets custom validity.
+  * Example: `<input type="text" name="email" w:warning="email$warning"...`
+* **w:value**: compares by name and updates checked/selected state.
+* **w:weave**: evaluates one or more comma-separated expressions for side effects.
+* **w:tagname**: evaluates and uses a dynamic tag name during rendering.
+* **w:use** and **w:define**: reusable template definitions.
+* **w:children**: forces regeneration of children from current template children when true.
 

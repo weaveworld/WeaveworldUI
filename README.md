@@ -1,75 +1,197 @@
-# WeaveworldUI
+﻿# WeaveworldUI
 
-**WeaveworldUI** is a JavaScript/ES Web UI library/framework for interactive web applications. Only basic (!) HTML/CSS/JavaScript skills are required to create applications.
+**WeaveworldUI** is a browser-native JavaScript/ES UI framework for interactive web applications.
+It uses standard HTML/CSS/JavaScript plus `w:` attributes, and does not require a mandatory build toolchain.
 
-**License**: it is **free** to use for **any** purpose, but it is _**not** open-source_ during its experimental phase (i. e., it is not allowed to use elsewhere some parts or modified versions of the source, but the original files), however the framework is  _**customizable**_ and _**redefinable**_ in every details. See: [licence](LICENSE).
+## License
 
-For comparison, there's a [simplified demo page](demo/todo), which functional equivalent versions are also available in Vue, React and Angular.
-In case of full-scale business web applications, using WeaveworldUI the development cost is only about 20%-10% (!) than other current popular solutions.
+It is free to use for any purpose, but during its experimental phase it is not open-source in the usual sense: only unmodified original files may be redistributed/used.
+See: [LICENSE](LICENSE).
 
-WeaveworldUI **main features**:
-* It is a _"Browser-native"_ library/framework, that means:
-  * It uses only _simple HTML and JS/ES_ techniques.
-  * It is a simple _JS library_, thus every smaller or larger details are _customizable_.
-  * To use it, only a `<script src=...` reference and the definition of the initial call or data is needed.
-  * UI development needs no external tool (e.g., Node.js), only a browser and a (text) editor. (Chrome's DeveloperTools can also be used.)
-* It has a novel _declarative description_ based on _"type-handlers"_: the HTML (augmented with `w:` prefixed attributes) _declares_ and _refers_ the use of data and controls, what   type-handlers (given with simple JS-objects) can _define_.
-  * Declarative descriptions and type-handlers provide a _simple_ way of _event handling_.
-  * The _"action-reaction"_ method enables simple instant reactions for user events.
-  * The concept of _"data-realm"_ gives a unified way to organize server response data and their processing.
-  * _"Field-bindings"_ means a higher level of abstraction, that is automatic augmentation of template attributes based on type-handlers' definitions.
-* The source of the presentation is a simple _HTML_, that is interpreted _as a template_.
-  * The UI can be _designed standalone_, without any server, by switching off templating or providing a static example data response.
+## Technical overview
 
-Usage (where VERSION: MAJOR.MINOR.DATE; suggested use: MAJOR.MINOR, e.g., .../`WeaveworldUI@1.3/`...)
+WeaveworldUI uses real HTML as the presentation source and interprets it as a template against current data (`W$DATA`).
+Behavior is defined with `w:` attributes and JavaScript type-handlers (`W$TYPE`), then applied through a reactive data-binding runtime.
+
+- Works with **plain HTML/CSS/JS**, with **no mandatory build tooling**.
+- You can start from a **static HTML page** with **example data**.
+- Logic can live directly in the **same page/file** (including mixed **HTML/CSS/JS**).
+- Development is **incremental**: start with **simple bindings**, then add richer behavior only where needed.
+- The same page remains **designable as real HTML** throughout development.
+- **`W$TYPE`** provides a **unified behavior model** for events, conversions, metadata, validation, and actions.
+- Delivers **consistent patterns** for **business UIs** (forms, CRUD flows, permission-aware screens).
+- Supports **progressive architecture growth** without forcing early over-structuring.
+- Reduces dependency on **build-tool ecosystem churn**.
+- Keeps **DOM/output transparent**, which improves inspection and debugging.
+- Offers strong **customization/override points** (calls, events, conversions, lifecycle, policy rules).
+- Well-suited to **internal/productivity apps** where **speed**, **consistency**, and **maintainability** matter.
+
+## Main features
+
+* **Build interactive pages with plain web skills.** You can work directly with HTML, CSS, and JavaScript, without switching to a separate UI language.
+* **Design first, wire later.** You can start from real HTML with example values, then connect it to live data step by step.
+* **Keep markup and behavior close together.** `w:` attributes let you describe what each element should show, hide, enable, or update in place.
+* **Reuse behavior across screens.** Type-based rules help you define once and apply consistently in many parts of the UI.
+* **Handle user actions in a predictable way.** Event handling is designed so buttons, forms, and controls follow the same patterns across the app.
+* **Update only what changed.** Data updates can refresh the related UI parts without rebuilding entire pages.
+* **Connect to your backend in your preferred style.** You can integrate server calls with operation-style or REST-style APIs.
+* **Show validation feedback where users need it.** Validation and messages are built in so form errors can appear consistently at field level.
+* **Reduce repeated form setup.** Field templates can apply common rules automatically (required, length, pattern, placeholders, etc.).
+* **Control visibility and editability from business rules.** Access-related rules can hide or disable actions based on user level.
+* **Support multilingual applications.** Localization helpers make it easier to translate UI text through a dictionary.
+* **Adapt the framework to project needs.** Core behavior is customizable, so teams can tune conventions without rewriting everything.
+
+### Summary
+
+#### Core developer features
+
+- **Browser-native workflow**: Build with plain HTML, CSS, and JavaScript, without a mandatory build toolchain.
+- **Declarative UI in markup**: Use `w:` attributes to express binding, conditions, iteration, and element behavior where it is used.
+- **Reusable behavior model**: Define shared UI logic with type-handlers (`W$TYPE`) and apply it consistently across screens.
+- **Predictable event and update flow**: Keep user actions, argument mapping, and UI updates structured and uniform.
+- **Integrated server call model**: Work with both operation-style and REST-style APIs through a single call flow (`W$CALL`).
+- **Reactive data-to-DOM updates**: Update only affected UI parts as data changes.
+- **Customizable runtime**: Override and extend core behaviors without changing the framework model.
+
+#### Built-in capabilities
+
+- **Validation and user feedback**: Field-level warnings/messages are part of the normal data flow.
+- **Form defaults from metadata**: Reduce repeated form wiring with field-template rules.
+- **Access-based UI control**: Hide or disable UI actions from declared access rules.
+- **Localization support**: Use dictionary-based translation helpers for multilingual interfaces.
+
+## Basic usage
+
 ```html
 <script src="https://cdn.jsdelivr.net/gh/weaveworld/WeaveworldUI@VERSION/w.min.js"></script>
 <link href="https://cdn.jsdelivr.net/gh/weaveworld/WeaveworldUI@VERSION/w.css" rel="stylesheet"/>
 ```
 
-**Using** WeaveworldUI is extremely simple. (see: [A simple example to do list](demo/simple-todo) tutorial.)
-* Create an HTML page with example data.
-* Provide some data (constant data or result of AJAX-call(s)).
-* Augment HTML with (`w:` prefixed) attributes to control data-binding. → Now, the page is filled with the current values.
-* Declare the types of parts of the DOM with the `class` and/or `w:type` attributes.
-* Create "type-handlers" containing "rules". "Rules" covers
-  * event handling,
-  * meta attributes of fields (such as length, required, etc.),
-  * derived (computed) values of current data,
-  * data transformation, view controls,
-  * constant or computed attributes of form fields.
+Version format: `MAJOR.MINOR.DATE`.
+Recommended CDN reference: `MAJOR.MINOR` (for example `.../WeaveworldUI@1.3/...`).
 
-WeaveworldUI **features**:
-* [Template](doc/doc-1-template.md) engine: example HTML is filled with current data.
-  * [Expression](doc/doc-1-template.md#template-expressions):
-    * current data, (sub)fields, `X\A.B.C`,
-    * values: `true`, `false`, `null`, `undefined`, `0`, `1`, `""`, `''`, expressions
-    * `!`, `= !`, `|`, `? :`, `[ ]`, [Transformations](doc/doc-1-template.md#transformations)
-  * [Transformations](doc/doc-1-template.md#transformations), `[?]`, `[??]`, `[?1]`, `[!]`, `[!!]`, `[!1]`, `[{}]`
-  * [Navigation](doc/doc-1-template.md#navigation-condition-iteration): `w:item`, `w:each` (`w:when`), `w:if`, (`w:else`)
-  * [Element](doc/doc-1-template.md#property-like-controls) properties: `w:attr:X`, `w:data:X`, `w:style:X`, `w:set:X`, `w:value`, `w:show`, `w:warning`
-* [Event-handling](doc/doc-2-event.md): events can be handled in so called "type-handlers" (simple JS objects).
-  * [High-level Event-handling](doc/doc-2-event.md#high-level-event-handling), `w:on:X`
-  * [Event-handling, parameters and return values](doc/doc-2-event.md#event-handling-parameters-and-return-values), _X_`$arg`
-  * `w:on:X:menu`, `w:on:X:data`, `w:on:X:set`, `w:on:X:action`
-  * [Low-level Event-handling](doc/doc-2-event.md#low-level-event-handling)
-* [Two-way data-binding](doc/doc-3-data-binding.md): modifying data causes DOM-element updates.
-  * ['Weaving'](doc/doc-3-data-binding.md#weaving---wweave) - `w$refresh`, `w$weave`
-  * [Server call](doc/doc-3-data-binding.md#server-call) - `W$CALL`
-  * [Initial data](doc/doc-3-data-binding.md#initial-data) - `W$DATA`, `W$START`; [Initialization](doc/doc-3-data-binding.md#initializing) - `W$ONLOAD`
-* "[Type-handlers](doc/doc-4-type-handlers.md#)": data derivation, transformation, view control, etc.
-  * [Type-binding](doc/doc-4-type-handlers.md#class) - `class`, [Prototype type-binding](doc/doc-4-type-handlers.md#wtype) - `w:type`
-  * [Type-handler registration](doc/doc-4-type-handlers.md#type-handler-registration) - `W$TYPE`, [Type-handler rules](doc/doc-4-type-handlers.md#type-handler-rules)
-* **Validation**: basic methods to check and display validation errors.
-  * _X_`$warning`, `_w`, `_w`$_X_, `w:warning`,
-  * _X_`$check`, _X_`$valid`
-  * _X_`$message`, `_m`, `_m`$_X_,
-* "**Field-templates**": setting defaults based on type-handler rules.
-  * `w:name`, `w:named`
-* **Access-control**: levels of view, update, delete, etc.
-  * `w:for`, `w:show:for`, `w:enable:for`
-* **(Re)action contexts**: complex reactions for events.
-  * `w:at`, `$at$`_X_
-* Basic **localization**: string translation using a dictionary.
-* **Utility functions**
-* **Customization**: practically everything can be redefined.
+## Typical development flow
+
+1. Create HTML with example values.
+2. Provide initial data (`W$DATA`) or load it (`W$START` + `W$CALL`).
+3. Add `w:` template attributes.
+4. Bind types via `class` and/or `w:type`.
+5. Define `W$TYPE` rules for events, conversions, metadata, and validation.
+
+Tutorial: [simple To-Do](demo/simple-todo/README.md).
+
+## Features
+
+### Main features
+
+* [Template](doc/doc-1-template.md) - build UI structure and value rendering from HTML templates.
+  * [Template attributes](doc/doc-1-template.md#template-attributes)
+  * [Template expressions](doc/doc-1-template.md#template-expressions)
+  * [Conversions](doc/doc-1-template.md#conversions)
+  * [Navigation, condition, iteration](doc/doc-1-template.md#navigation-condition-iteration)
+  * [Property-like controls](doc/doc-1-template.md#property-like-controls)
+  * Cheat-sheet: `w:item`, `w:each`, `w:if`, `w:else`, `w:text`, `w:value`, `w:show`, `w:enable`, `w:attr:*`, `w:style:*`, `w:class:*`
+
+* [Events](doc/doc-2-event.md) - define predictable user interaction flow.
+  * [High-level event handling](doc/doc-2-event.md#high-level-event-handling)
+  * [Arguments (`$arg` and declaration args)](doc/doc-2-event.md#arguments-arg-and-declaration-args)
+  * [Event declarations](doc/doc-2-event.md#event-declarations)
+  * [Capture handlers](doc/doc-2-event.md#capture-handlers)
+  * [Low-level event handling](doc/doc-2-event.md#low-level-event-handling)
+  * Cheat-sheet: `w:on:X`, `w:on:X:menu`, `w:on:X:data`, `w:on:X:set`, `w:on:X:action`, `w:on:X:href`, `w:capture:X`, `X$arg`
+
+* [Data binding](doc/doc-3-data-binding.md) - keep data and DOM synchronized and integrate server responses.
+  * [Refresh (`w$refresh`)](doc/doc-3-data-binding.md#refresh-wrefresh)
+  * [Weaving (`w$weave`)](doc/doc-3-data-binding.md#weaving-wweave)
+  * [Server call (`W$CALL`)](doc/doc-3-data-binding.md#server-call-wcall)
+  * [ONCE-style operation names](doc/doc-3-data-binding.md#once-style-operation-names)
+  * [Initial data (`W$DATA`, `W$START`)](doc/doc-3-data-binding.md#initial-data-wdata-wstart)
+  * [Initialization](doc/doc-3-data-binding.md#initialization)
+  * Cheat-sheet: `w$refresh`, `w$weave`, `W$CALL`, `W$DATA`, `W$START`, `W$ONLOAD`
+
+* [Type-handlers and type binding](doc/doc-4-type-handlers.md) - centralize reusable behavior and field metadata.
+  * [Class-based binding (`class`)](doc/doc-4-type-handlers.md#class-based-binding-class)
+  * [Prototype binding (`w:type`)](doc/doc-4-type-handlers.md#prototype-binding-wtype)
+  * [Type-handler registration (`W$TYPE`)](doc/doc-4-type-handlers.md#type-handler-registration-wtype)
+  * [Supertypes (`$type`)](doc/doc-4-type-handlers.md#supertypes-type)
+  * [Type-handler rules](doc/doc-4-type-handlers.md#type-handler-rules)
+  * Cheat-sheet: `W$TYPE`, `$name`, `$type`, `class`, `w:type`, `X$arg`, `X$check`, `X$valid`
+
+### Extended features
+
+* [Validation](doc/doc-5-validation.md) - consistent warning/message flow and checks.
+  * [Core concepts](doc/doc-5-validation.md#core-concepts)
+  * [Validation rules on type-handlers](doc/doc-5-validation.md#validation-rules-on-type-handlers)
+  * [Utilities](doc/doc-5-validation.md#utilities)
+  * [Warning object format](doc/doc-5-validation.md#warning-object-format)
+  * [Automatic checks with field templates](doc/doc-5-validation.md#automatic-checks-with-field-templates)
+  * Cheat-sheet: `_w`, `_w$field`, `_m`, `_m$field`, `w:warning`, `$check`, `$valid`
+
+* [Field templates](doc/doc-6-field-templates.md) - auto-apply form defaults from metadata.
+  * [Metadata conventions](doc/doc-6-field-templates.md#metadata-conventions)
+  * [What gets auto-generated](doc/doc-6-field-templates.md#what-gets-auto-generated)
+  * Cheat-sheet: `w:name`, `w:named`, `field$type`, `field$required`, `field$length`, `field$pattern`
+
+* [Access control](doc/doc-7-access-control.md) - declare view/edit permissions in templates.
+  * [Attributes](doc/doc-7-access-control.md#attributes)
+  * [Level codes](doc/doc-7-access-control.md#level-codes)
+  * [In field templates](doc/doc-7-access-control.md#in-field-templates)
+  * Cheat-sheet: `w:allowed`, `w:show:allowed`, `w:enable:allowed`
+
+* [Action contexts](doc/doc-8-action-contexts.md) - context-aware reactions after user actions.
+  * [Event-side action trigger](doc/doc-8-action-contexts.md#event-side-action-trigger)
+  * [`w$action` flow](doc/doc-8-action-contexts.md#waction-flow)
+  * [Related declarations](doc/doc-8-action-contexts.md#related-declarations)
+  * Cheat-sheet: `w:on:X:action`, `w$action`, `$action`
+
+* [Localization](doc/doc-9-localization.md) - dictionary-based UI translation.
+  * [Dictionary](doc/doc-9-localization.md#dictionary)
+  * [Phrase format](doc/doc-9-localization.md#phrase-format)
+  * [Utility functions](doc/doc-9-localization.md#utility-functions)
+  * [Customizing markers](doc/doc-9-localization.md#customizing-markers)
+  * Cheat-sheet: `W$DICTIONARY`, `w$say`, `w$says`
+
+* [Utilities](doc/doc-x1-utilities.md) - grouped helper APIs.
+  * [Data/object helpers](doc/doc-x1-utilities.md#dataobject-helpers)
+  * [DOM/query helpers](doc/doc-x1-utilities.md#domquery-helpers)
+  * [Data-binding helpers](doc/doc-x1-utilities.md#data-binding-helpers)
+  * [Networking and sync](doc/doc-x1-utilities.md#networking-and-sync)
+  * [URL, cookie, and form helpers](doc/doc-x1-utilities.md#url-cookie-and-form-helpers)
+
+* [Customization](doc/doc-x2-customization.md) - extension points and override strategy.
+  * [Common extension points](doc/doc-x2-customization.md#common-extension-points)
+  * [Practical pattern](doc/doc-x2-customization.md#practical-pattern)
+
+### By use case
+
+* First page template setup: [Template](doc/doc-1-template.md), [Type-handlers](doc/doc-4-type-handlers.md)
+* Button/form interaction flow: [Events](doc/doc-2-event.md), [Data binding](doc/doc-3-data-binding.md)
+* Server response weaving: [Data binding](doc/doc-3-data-binding.md#server-call-wcall)
+* Form validation and defaults: [Validation](doc/doc-5-validation.md), [Field templates](doc/doc-6-field-templates.md)
+* Role-based screen behavior: [Access control](doc/doc-7-access-control.md)
+* Reactive action contexts: [Action contexts](doc/doc-8-action-contexts.md)
+* Multilingual UI text: [Localization](doc/doc-9-localization.md)
+* Runtime extension and overrides: [Customization](doc/doc-x2-customization.md), [Utilities](doc/doc-x1-utilities.md)
+
+### Full document index
+
+Main features:
+
+* [Template](doc/doc-1-template.md)
+* [Events](doc/doc-2-event.md)
+* [Data binding](doc/doc-3-data-binding.md)
+* [Type-handlers and type binding](doc/doc-4-type-handlers.md)
+
+Extended features:
+
+* [Validation](doc/doc-5-validation.md)
+* [Field templates](doc/doc-6-field-templates.md)
+* [Access control](doc/doc-7-access-control.md)
+* [Action contexts](doc/doc-8-action-contexts.md)
+* [Localization](doc/doc-9-localization.md)
+* [Utilities](doc/doc-x1-utilities.md)
+* [Customization](doc/doc-x2-customization.md)
+
+## Notes
+
+For comparison, there is a simplified demo in [demo/todo](demo/todo). Functionally similar implementations can be built in Vue/React/Angular, while WeaveworldUI keeps a browser-native and directly customizable runtime model.
