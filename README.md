@@ -15,6 +15,7 @@ Behavior is defined with `w:` attributes and JavaScript type-handlers (`W$TYPE`)
 
 In practice, the framework can be used at multiple levels:
 
+- **Schema-driven form/page generation** with `w:children="[W$Form ...]"` and `WF$TYPE`
 - **High-level form/page authoring** with `w:name` / `w:named` and metadata on `W$TYPE`
 - **Direct declarative binding** with `w:` attributes such as `w:text`, `w:if`, `w:each`, `w:on:*`
 - **Low-level runtime control** with helpers like `w$apply`, `w$weave`, `w$refresh`, `w$action`, and `W$CALL`
@@ -45,6 +46,7 @@ Most business-form code can stay on the higher levels, while the lower levels re
 * **Connect to your backend in your preferred style.** You can integrate server calls with operation-style or REST-style APIs.
 * **Show validation feedback where users need it.** Validation and messages are built in so form errors can appear consistently at field level.
 * **Reduce repeated form setup.** Field templates can apply common rules automatically (required, length, pattern, placeholders, etc.).
+* **Generate forms from schema when that fits better.** `[W$Form ...]` provides a built-in schema-driven layer on top of the same WeaveworldUI runtime.
 * **Work at a higher level when desired.** `w:name` and `w:named` can generate much of the routine form wiring from metadata.
 * **Control visibility and editability from business rules.** Access-related rules can hide or disable actions based on user level.
 * **Support multilingual applications.** Localization helpers make it easier to translate UI text through a dictionary.
@@ -65,6 +67,7 @@ Most business-form code can stay on the higher levels, while the lower levels re
 #### Built-in capabilities
 
 - **Validation and user feedback**: Field-level warnings/messages are part of the normal data flow.
+- **Schema-driven UI layer**: `[W$Form ...]` can render structured form/page schemas on top of the same runtime and helpers.
 - **Form defaults from metadata**: Reduce repeated form wiring with field-template rules.
 - **Access-based UI control**: Hide or disable UI actions from declared access rules.
 - **Localization support**: Use dictionary-based translation helpers for multilingual interfaces.
@@ -84,9 +87,9 @@ Recommended CDN reference: `MAJOR.MINOR` (for example `.../WeaveworldUI@1.3/...`
 1. Create HTML with example values.
 2. Provide initial data (`W$DATA`) or load it (`W$START` + `W$CALL`).
 3. Add `w:` template attributes.
-4. For forms, prefer `w:name` / `w:named` where metadata-driven wiring is enough.
+4. For forms, choose the higher layer that fits best: `w:children="[W$Form ...]"` for schema-driven generation, or `w:name` / `w:named` for metadata-driven wiring in handwritten HTML.
 5. Bind types via `class` and/or `w:type`.
-6. Define `W$TYPE` rules for events, conversions, metadata, and validation.
+6. Define `W$TYPE` / `WF$TYPE` rules for events, conversions, metadata, validation, or schema rendering.
 
 Tutorial: [simple To-Do](demo/simple-todo/README.md).
 
@@ -128,6 +131,13 @@ Tutorial: [simple To-Do](demo/simple-todo/README.md).
   * Cheat-sheet: `W$TYPE`, `$name`, `$type`, `class`, `w:type`, `X$arg`, `X$check`, `X$valid`
 
 ### Extended features
+
+* [WFORM](doc/doc-wf.md) - schema-driven form/page generation as another built-in WeaveworldUI layer.
+  * [Core idea](doc/doc-wf.md#core-idea)
+  * [Type registration](doc/doc-wf.md#type-registration)
+  * [Rendering](doc/doc-wf.md#rendering)
+  * [Hook semantics](doc/doc-wf.md#create--append-parameters)
+  * Cheat-sheet: `w:children`, `[W$Form ...]`, `WF$TYPE`, `create(...)`, `append(...)`, `definition`, `list`
 
 * [Validation](doc/doc-5-validation.md) - consistent warning/message flow and checks.
   * [Core concepts](doc/doc-5-validation.md#core-concepts)
@@ -176,6 +186,7 @@ Tutorial: [simple To-Do](demo/simple-todo/README.md).
 ### By use case
 
 * First page template setup: [Template](doc/doc-1-template.md), [Type-handlers](doc/doc-4-type-handlers.md)
+* Schema-driven generated forms/pages: [WFORM](doc/doc-wf.md)
 * Button/form interaction flow: [Events](doc/doc-2-event.md), [Data binding](doc/doc-3-data-binding.md)
 * Server response weaving: [Data binding](doc/doc-3-data-binding.md#server-call-wcall)
 * Form validation and defaults: [Validation](doc/doc-5-validation.md), [Field templates](doc/doc-6-field-templates.md)
@@ -195,6 +206,7 @@ Main features:
 
 Extended features:
 
+* [WFORM](doc/doc-wf.md)
 * [Validation](doc/doc-5-validation.md)
 * [Field templates](doc/doc-6-field-templates.md)
 * [Access control](doc/doc-7-access-control.md)
