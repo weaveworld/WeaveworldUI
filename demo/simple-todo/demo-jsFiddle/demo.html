@@ -1,9 +1,9 @@
 <body>
   <div class=TodoList w:item>
-    <h3><span w:text=data.title>To Do List</span> <sup w:text="({{list.length|'-'}})">(2)</sub></h3>
+    <h3><span w:text=data.title>To Do List</span> <sup w:text="({{list.length|'-'}})">(2)</sup></h3>
     <ul w:each=list>
       <li class=Todo w:item>
-        <button w:on:onclick=todoDelete>-</button> 
+        <button w:on:click=todoDelete>-</button>
         <span w:text=name>Todo 1</span>
       </li>  
       <li w:item>
@@ -19,4 +19,3 @@
     </blockquote>
   </div> 
 </body>
-

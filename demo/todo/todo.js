@@ -4,16 +4,19 @@ W$TYPE={ $name:'ToDo',
    },          
 };
 W$TYPE={ $name:'Item',
+    text$required: true,
+    text$length: 120,
+    text$pattern: '.*\\S.*',
+    text$placeholder: 'Add a task',
     itemDelete: function(el,ev,arg){
       w$weave(el,'-'); 
     },      
     itemAdd: function(el,ev,arg){ 
-      if(!arg.text){
-        alert("Please enter a todo!");
-        return
-      }
-      const newId=Math.max.apply(null, w$list(el).map(t => t.id)) + 1;
-      w$weave(el,']',{id:newId,text:arg.text});
+      const list=w$list(el);
+      const text=(arg.text || '').trim();
+      if(!text){ return; }
+      const nextId=list.reduce((max,todo) => Math.max(max,todo.id || 0),0) + 1;
+      w$weave(el,']',{id:nextId,text:text});
       el.reset();
     }
 };

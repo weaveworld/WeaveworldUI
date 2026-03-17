@@ -14,11 +14,11 @@ This is the same application, as was created in Vue and React by [Sunil Sandhu](
 
 | _framework_  | _(files)_ | _(chars)_ 
 | ------------- | --- | --- 
-| Weaveworld  | 2 | ~ 1300 
+| WeaveworldUI  | 2 | ~ 1300
 | Vue  | 3 | ~ 1300  
 | React  | 4 | ~ 2824 
 | Angular |8| ~ 3100
 
-(Weaveworld needs only basic HTML/JS knowledge and a browser.)
+(WeaveworldUI needs only basic HTML/JS knowledge and a browser.)
 
-In case of full-scale business web applications, the code based on Weaveworld is about 2-4 times smaller and simpler than the usual methods.
+In case of full-scale business web applications, the code based on WeaveworldUI is about 2-4 times smaller and simpler than the usual methods.

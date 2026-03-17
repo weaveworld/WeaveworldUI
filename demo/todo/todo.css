@@ -42,6 +42,7 @@ body {
   padding: 0 0.4ex;
   cursor: pointer;
   background: #73ff73;
+  border: 0;
   border-radius: 10px;
   box-shadow: 1px 1px 1px #47a947;
   _margin: 20px auto 0px;
@@ -83,14 +84,27 @@ input {
     height: 20px;
     cursor: pointer;
     background: #ff7373;
+    border: 0;
     border-radius: 10px;
     box-shadow: 1px 1px 1px #c70202;
     color: white;
     font-size: 18px;
     margin-right: 5px;
+    line-height: 1;
 }
 .ToDoItem-Delete:hover {
     box-shadow: none;
     margin-top: 1px;
     margin-left: 1px;
+}
+form.Item {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+form.Item > sup {
+    min-width: 1.5em;
+    margin-top: 20px;
 }

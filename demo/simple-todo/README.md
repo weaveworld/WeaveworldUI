@@ -1,8 +1,8 @@
-## Weaveworld simple To Do list (tutorial) ##
+## WeaveworldUI simple To Do list (tutorial) ##
 
-Using Weaveworld is very simple.
+Using WeaveworldUI is very simple.
 
-(See the example on [jsFiddle](https://jsfiddle.net/gh/get/library/pure/weaveworld/Weaveworld/tree/master/demo/simple-todo/demo-jsFiddle/).)
+(See the example on [jsFiddle](https://jsfiddle.net/gh/get/library/pure/weaveworld/WeaveworldUI/tree/main/demo/simple-todo/demo-jsFiddle/).)
 
 ### HTML with example data ###
 
@@ -14,12 +14,12 @@ The page can be opened by a browser and can be designed using some classes and C
 ```html
 <!DOCTYPE html><html><head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <<title>Weaveworld To Do List</title>
-  <script src="https://cdn.jsdelivr.net/gh/weaveworld/Weaveworld@latest/w.js"></script>
-  <link href="https://cdn.jsdelivr.net/gh/weaveworld/Weaveworld@latest/w.css" rel="stylesheet"/>
+  <title>WeaveworldUI To Do List</title>
+  <script src="https://cdn.jsdelivr.net/gh/weaveworld/WeaveworldUI@2.1/w.js"></script>
+  <link href="https://cdn.jsdelivr.net/gh/weaveworld/WeaveworldUI@2.1/w.css" rel="stylesheet"/>
   <script src="simple-todo.js"></script>
 </head>
-<body>
+<body class=w>
   <div>
     <h3><span>To Do List</span> <sup>(2)</sup></h3>
     <ul>
@@ -62,7 +62,7 @@ Now refreshing the browser, the actualized content appears.
 <body class=w>
   <div w:item>
     <h3><span w:text=data.title>To Do List</span>
-      <sup w:text="({{list.length}})">(2)</sub>
+      <sup w:text="({{list.length}})">(2)</sup>
     </h3>
     <ul w:each=list>
       <li w:item>
@@ -97,11 +97,11 @@ Let's declare types of the DOM-parts using the `class` attribute (see `class=Tod
 <body class=w>
   <div class=TodoList w:item>
     <h3><span w:text=data.title>To Do List</span>
-      <sup w:text="({{list.length}})">(2)</sub>
+      <sup w:text="({{list.length}})">(2)</sup>
     </h3>
     <ul w:each=list>
       <li class=Todo w:item>
-        <button w:on:onclick=todoDelete>-</button>
+        <button w:on:click=todoDelete>-</button>
         <span w:text=name>Todo 1</span>
       </li>
       <li w:item>
@@ -252,22 +252,22 @@ The HTML:
 ```html
 <!DOCTYPE html>
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <title>Weaveworld To Do List</title>
-  <script src="https://cdn.jsdelivr.net/gh/weaveworld/Weaveworld/w.min.js"></script>
-  <link href="https://cdn.jsdelivr.net/gh/weaveworld/Weaveworld/w.css" rel="stylesheet"/>
+  <title>WeaveworldUI To Do List</title>
+  <script src="https://cdn.jsdelivr.net/gh/weaveworld/WeaveworldUI@2.1/w.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/gh/weaveworld/WeaveworldUI@2.1/w.css" rel="stylesheet"/>
   <script src="simple-todo.js"></script>
   <script>
     // W$DATA=undefined
   </script>
 </head>
-<body>
+<body class=w>
   <div class=TodoList w:item>
     <h3><span w:text=data.title>To Do List</span>
-      <sup w:text="({{list.length|'-'}})">(2)</sub>
+      <sup w:text="({{list.length|'-'}})">(2)</sup>
     </h3>
     <ul w:each=list>
       <li class=Todo w:item>
-        <button w:on:onclick=todoDelete>-</button>
+        <button w:on:click=todoDelete>-</button>
         <span w:text=name>Todo 1</span>
       </li>
       <li w:item>
