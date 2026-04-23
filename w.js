@@ -125,7 +125,6 @@ function w$says(s){ let i,j, begin,end;
   a.push(s.substring(from));
   return a.join('');
 }
-
 //#endregion
 //#region ELEMENT_HANDLING
 
@@ -974,7 +973,7 @@ function w$ajax$error(d){
 function w$ajax(arg){ var xhr, method=arg.method || 'GET', request={aborted:false,done:false}, signal=arg.signal, controller, abort$listener;
   // Normalize method suffixes and keep JSON parsing opt-in for `.json` methods.
   var expectJSON=false;
-  if(method.endsWith(".json")){ method=method.substring(0,method.length-5); expectJSON=true; }
+  if(method.endsWith(".json")){ method=method.substring(0,method.length-5); expectJSON=true; arg.json=true; }
   // Centralize completion hooks so XHR / fetch / CEF keep the same callback contract.
   if(typeof(AbortController)=='function'){ request.controller=controller=new AbortController(); request.signal=controller.signal;
     if(signal){ if(signal.aborted){ controller.abort(signal.reason);
@@ -1711,7 +1710,7 @@ DEV=false;
 function WElement(e,def,w$say,commentHandler){ let nodeType=e.nodeType, say=w$say||w$says;
   this.nodeName=e.nodeName;
   // Normalize text nodes immediately so the snapshot and live DOM stay in sync.
-  if(nodeType==3){ var v=e.textContent, w=say(v);
+  if(nodeType==3){ var v=e.textContent, p=e.parentElement, w=p && (p.nodeName=='SCRIPT' || p.nodeName=='STYLE') ? v : say(v);
     this.textContent=w; if(v!=w) e.textContent=w;
   }else if(nodeType==1){ e.normalize(); let a,n;
     if(e.$wf) this.$wf=e.$wf;
@@ -1730,7 +1729,7 @@ function WElement(e,def,w$say,commentHandler){ let nodeType=e.nodeType, say=w$sa
           this.childNodes.push(new WElement(el,def,w$say,commentHandler));
           if(el.nodeName.toUpperCase()=='W:ELSE') w$removeElement(el);
         }else if(el.nodeType==8){
-          if(commentHandler) commentHandler(say(el.textContent));
+          if(commentHandler) commentHandler(el.textContent);
         }
       }
     }
@@ -2174,6 +2173,7 @@ function w$apply(el,$,pattern,check,$w,base){ $=w$proxy($); var $this=$,s;
     if($w){ var children=pattern.childNodes, start=null,sep=null,end, idx=-1, $$arg=$w; // ELEMENTS
       do{
         for(var i=(start||0); i<(sep!=null ? sep : children?children.length:0); ++i){ var ch=children[i], needSet=false, last=false;
+          if(ch.nodeName=='SCRIPT' || ch.nodeName=='STYLE') continue;
           $this=$;
           if(ch.nodeType==1){
             if(ch.nodeName=='W:ELSE'){ break;
@@ -2215,7 +2215,7 @@ function w$apply(el,$,pattern,check,$w,base){ $=w$proxy($); var $this=$,s;
           children=x.childNodes;
         }
         if((s=el.getAttribute('w:children')) && weave$evalExpr(el,$this,s)){
-          el.$w.w$=new WElement(el,W$DEFINITIONS,w$say); children=el.$w.w$.childNodes;
+          el.$w.w$=new WElement(el,W$DEFINITIONS,w$says); children=el.$w.w$.childNodes;
         }
         return children;
       }
@@ -2299,7 +2299,12 @@ function w$apply(el,$,pattern,check,$w,base){ $=w$proxy($); var $this=$,s;
           if(!wif) children=null;
           while(el.lastChild) w$removeElement(el.lastChild);
         }
-        if(children){ var elCh=el.childNodes;
+        if(children){ var elCh=[];
+          if(el && el.childNodes){
+            for(let i=0; i<el.childNodes.length; ++i){ let ch=el.childNodes[i];
+              if(ch.nodeType==1 || ch.nodeType==3) elCh.push(ch);
+            }
+          }
           if(check && !!(check=(children.length==elCh.length))){
             for(var i=0; i<elCh.length; ++i){ var c1,c2;
               if(!((c1=elCh[i]).$w && c1.$w.w$==children[i])){ check=false; break; }
@@ -2312,7 +2317,10 @@ function w$apply(el,$,pattern,check,$w,base){ $=w$proxy($); var $this=$,s;
           }else{
             while(el.lastChild) w$removeElement(el.lastChild);
             for(var i=0; i<children.length; ++i){ var ch=children[i],e; if(ch.nodeName=='W:ELSE') break;
-              e=el.appendChild(ch.cloneNode(false));
+              try{ e=el.appendChild(ch.cloneNode(false));
+                 }catch(e){
+                    console.log(e);
+              }
               w$apply(e,$this,ch,undefined,undefined,base);
             }
           }
@@ -3127,7 +3135,7 @@ function w$define(type,definition){ let name;
 
 /** Load HTML from `url`; merge comments/definitions and append or replace body content.
  * <li> Fetch an HTML document/fragment and normalize it into a temporary wrapper node.
- * <li> Extract definitions, inline CSS/script comments, and imported body content.
+ * <li> Extract definitions, inline script comments, and imported body content.
  * <li> Replace or append DOM content, weave it immediately, and resolve by callback or Promise.
  * <li> Preserve the current body data context while swapping the shell or appending imported nodes.
  * <li> Materialize extracted inline CSS/script blocks only after the new fragment has entered the DOM.
@@ -3150,10 +3158,9 @@ function w$include(url,replace,fn){
       }
       var div=w$element('div',{'w:html':data}).firstElementChild; if(!div){ w$include$ok(null); return; }
 
-      // Parse definitions and `!w:css!` / `!w:script!` comments before moving nodes into the page.
-      var wCSS='',wScript='', pattern=new WElement(div,W$DEFINITIONS,w$say,function(t){ var s;
-        if(t.startsWith(s="!w:css!")) wCSS+='\n'+t.substring(s.length);
-        else if(t.startsWith(s="!w:script!")) wScript+='\n'+t.substring(s.length);
+      // Parse definitions and `!w:script!` comments before moving nodes into the page.
+      var wScript='', pattern=new WElement(div,W$DEFINITIONS,w$says,function(t){ var s;
+        if(t.startsWith(s="!w:script!")) wScript+='\n'+t.substring(s.length);
       });
       bodyData=document.body.$w && '$' in document.body.$w ? document.body.$w.$ : W$DATA$;
 
@@ -3170,8 +3177,7 @@ function w$include(url,replace,fn){
         while(div.firstChild){ appended.push(document.body.appendChild(div.firstChild)); }
       }
 
-      // Materialize extracted CSS/script comments after the DOM fragment is in place.
-      if(wCSS){ document.head.appendChild(w$element("style",{name:'!w:css','w:text':wCSS+'\n'})); }
+      // Materialize extracted script comments after the DOM fragment is in place.
       if(wScript){ document.head.appendChild(w$element("script",{name:'!w:script','w:text':wScript+'\n'})); }
 
       // Newly included content is woven immediately against the current body data.
@@ -3222,7 +3228,7 @@ function wf$template(type){ let html,root,defs=typeof(W$DEFINITIONS)!='undefined
     if(root.hasAttribute('wf:define')) type.$name=root.getAttribute('wf:define');
   }
   root.removeAttribute('wf:define');
-  type.element=new WElement(root,defs,w$say);
+  type.element=new WElement(root,defs,w$says);
   return type;
 }
 /** Register one `WF$TYPE` definition, with optional `$type` inheritance. */
@@ -3295,7 +3301,7 @@ function WF$append(wf,parent,arg, $this){ let el=parent; if(!$this) $this=this;
       el=rootEl=type.element.cloneNode(true);
       if(el) wf$attrs(el,arg);
       if(el && el.parentElement!==parent) parent.appendChild(el);
-      if(el) pattern=new WElement(el,defs,w$say), el=rootEl=w$apply(el,arg,pattern,false,undefined,arg);
+      if(el) pattern=new WElement(el,defs,w$says), el=rootEl=w$apply(el,arg,pattern,false,undefined,arg);
       // Route nested `list` rendering into the first empty `wf:children` placeholder when present.
       if(rootEl && (childrenEl=wf$children(rootEl))) childrenEl.removeAttribute('wf:children');
     }else throw new Error("Type `"+arg.type+"` has no append(...), create(...), or element template");
@@ -3367,7 +3373,7 @@ var W$INITIALIZED=false;
  * <li> Build the initial body snapshot, run startup hooks, and apply the root weave.
  * <li> Choose startup data from remote call, preloaded globals, parameter factory, or static body markup.
  * <li> Preserve predeclared startup globals and support immediate boot when the script loads after DOM ready.
- * <li> Extract inline `!w:css!` and `!w:script!` comments before running `W$ONSTART`, `W$ONLOAD`, and `W$SYNC`.
+ * <li> Extract inline `!w:script!` comments before running `W$ONSTART`, `W$ONLOAD`, and `W$SYNC`.
  */
 function w$startup(){ if(W$INITIALIZED) return; W$INITIALIZED=true; W$DEFINITIONS={};
   // event handlers
@@ -3377,13 +3383,11 @@ function w$startup(){ if(W$INITIALIZED) return; W$INITIALIZED=true; W$DEFINITION
 
   document.body.$w ||= {}; document.body.$w.$=W$DATA$;
 
-  // Build the initial body snapshot, extract inline assets, then weave the root data.
-  function load($){ W$DATA=w$proxy($); var wCSS='',wScript='';
-    document.body.$w.w$=new WElement(document.body,W$DEFINITIONS,w$say,function(t){ var s;
-      if(t.startsWith(s="!w:css!")) wCSS+='\n'+t.substring(s.length);
-      else if(t.startsWith(s="!w:script!")) wScript+='\n'+t.substring(s.length);
+  // Build the initial body snapshot, extract inline scripts, then weave the root data.
+  function load($){ W$DATA=w$proxy($); var wScript='';
+    document.body.$w.w$=new WElement(document.body,W$DEFINITIONS,w$says,function(t){ var s;
+      if(t.startsWith(s="!w:script!")) wScript+='\n'+t.substring(s.length);
     });
-    if(wCSS){ document.head.appendChild(w$element("style",{name:'!w:css','w:text':wCSS+'\n'})); }
     if(wScript){ document.head.appendChild(w$element("script",{name:'!w:script','w:text':wScript+'\n'})); }
 
     // Run pre-load hooks, apply the root weave, then run post-load hooks and sync.
