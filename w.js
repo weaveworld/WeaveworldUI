@@ -2317,10 +2317,7 @@ function w$apply(el,$,pattern,check,$w,base){ $=w$proxy($); var $this=$,s;
           }else{
             while(el.lastChild) w$removeElement(el.lastChild);
             for(var i=0; i<children.length; ++i){ var ch=children[i],e; if(ch.nodeName=='W:ELSE') break;
-              try{ e=el.appendChild(ch.cloneNode(false));
-                 }catch(e){
-                    console.log(e);
-              }
+              e=el.appendChild(ch.cloneNode(false));
               w$apply(e,$this,ch,undefined,undefined,base);
             }
           }
